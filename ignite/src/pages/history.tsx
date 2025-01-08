@@ -1,7 +1,8 @@
-export function History(){
+
+export function History() {
   return (
     <>
-    <h1>Hello World HISTORY</h1>
+      <h1>Hello World HISTORY</h1>
     </>
   )
 }
