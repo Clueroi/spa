@@ -1,6 +1,6 @@
-import { CountdownContainer, FormContainer, HomeContainer, MinutesAmountInput, Separator, StartCountdownButton, TaskInput } from "./styles";
+import { CountdownContainer, FormContainer, HomeContainer, MinutesAmountInput, Separator, StartCountdownButton, StopCountdownButton, TaskInput } from "./styles";
 
-import { Play } from "phosphor-react";
+import { HandPalm, Play } from "phosphor-react";
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from "react";
 import { differenceInSeconds } from 'date-fns'
@@ -18,6 +18,7 @@ interface Cycle {
   task: string
   minutesAmount: number
   startDate: Date
+  interruptedDate?: Date
 }
 
 type NewCycleFormData = zod.infer<typeof NewCycleFormValidationSchema>
@@ -73,6 +74,18 @@ export function Home() {
     reset()
   }
 
+  function handleInterruptCycle() { 
+    setCycles(cycles.map(cycle => {
+      if(cycle.id === activeCycleId){
+        return {...cycle, interruptedDate: new Date()}
+      } else {
+        return cycle
+      }
+    }))
+
+    setActiveCycleId(null)
+  }
+
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
@@ -84,6 +97,7 @@ export function Home() {
 
   const task = watch('task')
   const isSubmitDisabled = !task
+
 
   useEffect(() => {
     if (activeCycle) {
@@ -97,6 +111,7 @@ export function Home() {
         <FormContainer>
           <label htmlFor="task">Vou trabalhar em</label>
           <TaskInput
+            disabled={!!activeCycle}
             id="task"
             list="task-suggestions"
             type="text"
@@ -133,7 +148,13 @@ export function Home() {
           <span>{seconds[1]} </span>
         </CountdownContainer>
 
-        <StartCountdownButton type="submit" disabled={isSubmitDisabled} > <Play size={24} /> Começar </StartCountdownButton>
+        {activeCycle ? (
+          <StopCountdownButton onClick={handleInterruptCycle} type="submit" > <HandPalm size={24} /> Parar </StopCountdownButton>
+        ) : (
+          <StartCountdownButton type="submit" disabled={isSubmitDisabled} > <Play size={24} /> Começar </StartCountdownButton>
+        )
+        }
+
       </form>
 
     </HomeContainer>
