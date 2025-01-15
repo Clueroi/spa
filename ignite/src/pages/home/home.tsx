@@ -85,7 +85,12 @@ export function Home() {
   const task = watch('task')
   const isSubmitDisabled = !task
 
-  
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutes}:${seconds}`
+    }
+  }, [minutes, seconds])
+
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
