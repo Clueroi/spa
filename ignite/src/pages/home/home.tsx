@@ -39,12 +39,22 @@ export function Home() {
   })
 
   useEffect(() => {
+    let interval: number
+
     if (activeCycle) {
-      setInterval(() => {
-        setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate))
+      interval = setInterval(() => {
+        setAmountSecondsPassed(
+          differenceInSeconds(new Date(), activeCycle.startDate))
       }, 1000)
     }
+
+    return () => {
+      clearInterval(interval)
+    }
+
   }, [activeCycle])
+
+
 
   function handleCreateNewCycle(data: NewCycleFormData) {
     const id = String(new Date().getTime())
@@ -58,6 +68,7 @@ export function Home() {
 
     setCycles((state) => [...state, newCycle])
     setActiveCycleId(id)
+    setAmountSecondsPassed(0)
 
     reset()
   }
@@ -74,6 +85,7 @@ export function Home() {
   const task = watch('task')
   const isSubmitDisabled = !task
 
+  
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
