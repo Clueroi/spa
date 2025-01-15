@@ -2,7 +2,8 @@ import { CountdownContainer, FormContainer, HomeContainer, MinutesAmountInput, S
 
 import { Play } from "phosphor-react";
 import { useForm } from 'react-hook-form'
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { differenceInSeconds } from 'date-fns'
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from 'zod'
@@ -13,9 +14,10 @@ const NewCycleFormValidationSchema = zod.object({
 })
 
 interface Cycle {
-  id:string
-  task:string
+  id: string
+  task: string
   minutesAmount: number
+  startDate: Date
 }
 
 type NewCycleFormData = zod.infer<typeof NewCycleFormValidationSchema>
@@ -26,21 +28,32 @@ export function Home() {
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
 
+  const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
+
   const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
     resolver: zodResolver(NewCycleFormValidationSchema),
     defaultValues: {
-      task:'',
-      minutesAmount:5,
+      task: '',
+      minutesAmount: 5,
     }
   })
 
-  function handleCreateNewCycle(data:NewCycleFormData){
+  useEffect(() => {
+    if (activeCycle) {
+      setInterval(() => {
+        setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate))
+      }, 1000)
+    }
+  }, [activeCycle])
+
+  function handleCreateNewCycle(data: NewCycleFormData) {
     const id = String(new Date().getTime())
 
-    const newCycle:Cycle = {
+    const newCycle: Cycle = {
       id,
       task: data.task,
-      minutesAmount: data.minutesAmount
+      minutesAmount: data.minutesAmount,
+      startDate: new Date()
     }
 
     setCycles((state) => [...state, newCycle])
@@ -49,7 +62,6 @@ export function Home() {
     reset()
   }
 
-  const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
@@ -90,7 +102,7 @@ export function Home() {
             step={5}
             min={5}
             max={60}
-            {...register('minutesAmount', {valueAsNumber:true})}
+            {...register('minutesAmount', { valueAsNumber: true })}
           />
           <span>minutos</span>
         </FormContainer>
