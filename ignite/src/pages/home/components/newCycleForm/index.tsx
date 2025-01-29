@@ -3,7 +3,7 @@ import { FormContainer, MinutesAmountInput, TaskInput } from "./styles";
 import * as zod from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useContext } from "react";
-import { CyclesContext } from "../../home";
+import { CyclesContext } from "../../../../context/cyclesContext";
 
 
 export function NewCycleForm() {
